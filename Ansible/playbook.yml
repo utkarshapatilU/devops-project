@@ -1,0 +1,30 @@
+- name: Deploy HTML App
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+
+    - name: Copy app files
+      copy:
+        src: ../app/
+        dest: /home/ubuntu/app/
+
+    - name: Build Docker image
+      shell: |
+        cd /home/ubuntu/app
+        docker build -t html-app .
+
+    - name: Run container
+      shell: |
+        docker rm -f html-app || true
+        docker run -d -p 80:80 --name html-app html-app
