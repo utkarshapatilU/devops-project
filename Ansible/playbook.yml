@@ -13,18 +13,35 @@
       service:
         name: docker
         state: started
+        enabled: yes
+
+    - name: Create app directory
+      file:
+        path: /home/ubuntu/app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
 
     - name: Copy app files
       copy:
         src: ../app/
         dest: /home/ubuntu/app/
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
 
     - name: Build Docker image
       shell: |
         cd /home/ubuntu/app
         docker build -t html-app .
 
+    - name: Remove old container if exists
+      shell: docker rm -f html-app || true
+
     - name: Run container
       shell: |
-        docker rm -f html-app || true
-        docker run -d -p 80:80 --name html-app html-app
+        docker run -d \
+        -p 80:80 \
+        --name html-app \
+        html-app
