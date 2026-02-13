@@ -3,9 +3,12 @@
   become: yes
 
   tasks:
-    - name: Install Docker
+
+    - name: Install dependencies
       apt:
-        name: docker.io
+        name:
+          - docker.io
+          - git
         state: present
         update_cache: yes
 
@@ -15,33 +18,25 @@
         state: started
         enabled: yes
 
-    - name: Create app directory
+    - name: Remove old app directory
       file:
         path: /home/ubuntu/app
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
+        state: absent
 
-    - name: Copy app files
-      copy:
-        src: ../app/
-        dest: /home/ubuntu/app/
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
+    - name: Clone app repo from GitHub
+      git:
+        repo: https://github.com/utkarshapatilU/devops-project.git
+        dest: /home/ubuntu/app
+        force: yes
 
     - name: Build Docker image
       shell: |
         cd /home/ubuntu/app
         docker build -t html-app .
 
-    - name: Remove old container if exists
+    - name: Stop old container if exists
       shell: docker rm -f html-app || true
 
-    - name: Run container
+    - name: Run new container
       shell: |
-        docker run -d \
-        -p 80:80 \
-        --name html-app \
-        html-app
+        docker run -d -p 80:80 --name html-app html-app
