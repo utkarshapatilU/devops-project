@@ -1,11 +1,5 @@
 pipeline {
     agent any
-    environment {
-        // Use Jenkins credentials (create these first in Jenkins)
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        AWS_DEFAULT_REGION    = 'ap-south-1' // Replace with your AWS region
-    }
 
     stages {
 
@@ -16,18 +10,16 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Init & Apply') {
             steps {
-                dir('Terraform') {
-                    sh 'terraform init'
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                dir('Terraform') {
-                    sh 'terraform apply -auto-approve'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds' 
+                ]]) {
+                    dir('Terraform') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
                 }
             }
         }
