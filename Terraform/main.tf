@@ -13,11 +13,20 @@ resource "aws_instance" "server" {
   }
 }
 
-# -------- ANSIBLE TRIGGER --------
+# -------- ANSIBLE TRIGGER (SAFE) --------
 resource "null_resource" "ansible_run" {
-
   depends_on = [aws_instance.server]
 
+  # Connection block ensures Terraform waits until SSH is ready
+  connection {
+    type        = "ssh"
+    host        = aws_instance.server.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/jenkins.pem")
+    timeout     = "5m"
+  }
+
+  # Local-exec provisioner to run Ansible locally
   provisioner "local-exec" {
     command = <<EOT
       echo "[server]" > ../Ansible/inventory.ini

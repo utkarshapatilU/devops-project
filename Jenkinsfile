@@ -24,12 +24,12 @@ pipeline {
             }
         }
 
-        stage('Deploy App with Ansible') {
-            steps {
-                dir('Ansible') {
-                    sh 'ansible-playbook -i inventory.ini playbook.yml'
-                }
-            }
-        }
+        // stage('Deploy App with Ansible') {
+        //     steps {
+        //         dir('Ansible') {
+        //             sh 'ansible-playbook -i inventory.ini playbook.yml'
+        //         }
+        //     }
+        // }
     }
 }
