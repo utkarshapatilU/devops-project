@@ -27,3 +27,11 @@ variable "instance_name" {
   type        = string
   default     = "Ansible-Server"
 }
+
+variable "ssh_private_key_path" {
+  description = "Path to the SSH private key file (used by Terraform/Ansible)"
+  type        = string
+  default     = "./jenkins-key.pem"  # relative to Terraform folder
+}
+
+
